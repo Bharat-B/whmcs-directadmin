@@ -6,7 +6,6 @@ if (!defined("WHMCS")) {
 
 include_once __DIR__.'/directadmin/LicenseServer.php';
 
-use ReadyDedis\LicenseServer;
 use WHMCS\Database\Capsule;
 
 /**
