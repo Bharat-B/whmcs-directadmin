@@ -1,7 +1,5 @@
 <?php
 
-namespace ReadyDedis;
-
 class LicenseServer {
 
     public $version = '0.3.1';
@@ -282,5 +280,25 @@ class LicenseServer {
                 return $output[$this->license_id];
         }
         return ['error' => "License not found!"];
+    }
+
+    public function pay_license(){
+        if($this->license_id == 0){
+            throw new \Exception("License ID has not been set!");
+        }
+        $response = $this->curl->post('/cgi-bin/makepayment', [
+            'headers' => [
+                'Referer' => 'https://www.directadmin.com/clients/makepayment.php'
+            ],
+            'body' => [
+                'uid' => $this->uid,
+                'password' => $this->password,
+                'lid' => $this->license_id,
+                'action' => 'pay',
+                'api' => 1
+            ]
+        ]);
+
+        return $this->parse_response($response->getBody());
     }
 }
