@@ -83,55 +83,53 @@ function directadmin_licensing_ConfigOptions($params = [])
             'Options' => $products,
             'Description' => '',
         ];
-    }
+        $oslist = [];
+        foreach($server->get_os_list() as $id => $name){
+            $oslist[] = "$id|$name";
+        }
+        $oslist = implode(",",$oslist);
+        
+        $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','lid%')->first();
+        if(!isset($field->id)){
+            Capsule::table('tblcustomfields')->insertGetId([
+                'relid' => $_REQUEST['id'],
+                'fieldname' => "lid|License ID",
+                'adminonly' => 'on',
+                'showorder' => 'off',
+                'fieldtype' => 'text',
+                'type' => 'product'
+            ]);
+        }
 
-    $oslist = [];
-    foreach($server->get_os_list() as $id => $name){
-        $oslist[] = "$id|$name";
-    }
-    $oslist = implode(",",$oslist);
+        $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','ip%')->first();
+        if(!isset($field->id)){
+            Capsule::table('tblcustomfields')->insertGetId([
+                'relid' => $_REQUEST['id'],
+                'fieldname' => "ip|IP Address",
+                'adminonly' => 'off',
+                'showorder' => 'on',
+                'fieldtype' => 'text',
+                'type' => 'product',
+                'required' => 'on'
+            ]);
+        }
 
-    $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','lid%')->first();
-    if(!isset($field->id)){
-        Capsule::table('tblcustomfields')->insertGetId([
-            'relid' => $_REQUEST['id'],
-            'fieldname' => "lid|License ID",
-            'adminonly' => 'on',
-            'showorder' => 'off',
-            'fieldtype' => 'text',
-            'type' => 'product'
-        ]);
+        $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','os%')->first();
+        if(!isset($field->id)){
+            Capsule::table('tblcustomfields')->insertGetId([
+                'relid' => $_REQUEST['id'],
+                'fieldname' => "os|Operating System",
+                'adminonly' => 'off',
+                'showorder' => 'on',
+                'fieldtype' => 'dropdown',
+                'fieldoptions' => $oslist,
+                'type' => 'product',
+                'required' => 'on'
+            ]);
+        } else {
+            Capsule::table('tblcustomfields')->where('id',$field->id)->update(['fieldoptions' => $oslist]);
+        }
     }
-
-    $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','ip%')->first();
-    if(!isset($field->id)){
-        Capsule::table('tblcustomfields')->insertGetId([
-            'relid' => $_REQUEST['id'],
-            'fieldname' => "ip|IP Address",
-            'adminonly' => 'off',
-            'showorder' => 'on',
-            'fieldtype' => 'text',
-            'type' => 'product',
-            'required' => 'on'
-        ]);
-    }
-
-    $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','os%')->first();
-    if(!isset($field->id)){
-        Capsule::table('tblcustomfields')->insertGetId([
-            'relid' => $_REQUEST['id'],
-            'fieldname' => "os|Operating System",
-            'adminonly' => 'off',
-            'showorder' => 'on',
-            'fieldtype' => 'dropdown',
-            'fieldoptions' => $oslist,
-            'type' => 'product',
-            'required' => 'on'
-        ]);
-    } else {
-        Capsule::table('tblcustomfields')->where('id',$field->id)->update(['fieldoptions' => $oslist]);
-    }
-
 
 
     return $options;
