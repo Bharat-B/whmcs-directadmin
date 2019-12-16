@@ -180,7 +180,7 @@ class LicenseServer {
                 'email' => $email,
                 'os' => $os,
                 'domain' => $domain,
-                'payment' => 'mail'
+                'payment' => $payment
             ]
         ]);
         $res = $this->parse_response($response->getBody());
@@ -189,11 +189,7 @@ class LicenseServer {
             throw new \Exception($res->text);
         }
 
-        if(!$response->hasHeader('x-lid')){
-            return $response->getHeader('x-lid');
-        } else {
-            return $this->get_license($ip);
-        }
+        return $this->get_license($ip);
     }
 
     /**
@@ -268,16 +264,23 @@ class LicenseServer {
         $lines = $response->getBody();
         $lines = explode("\n", $lines);
         $output = [];
-        foreach ($lines as $line){
-            if($line !== '') {
+        foreach ($lines as $line) {
+            if ($line !== '') {
                 parse_str($line, $licinfo);
-                if(isset($licinfo['lid']) && is_numeric($licinfo['lid'])) {
+                if (isset($licinfo['lid']) && is_numeric($licinfo['lid'])) {
                     $output[$licinfo['lid']] = $licinfo;
+                }
+                if (!isset($this->license_id) || $this->license_id == 0 && $vars['ip'] !== '') {
+                    if ($licinfo['ip'] == $ip) {
+                        return $licinfo;
+                    }
                 }
             }
         }
-        if (array_key_exists($this->license_id, $output))
-            return $output[$this->license_id];
+        if(isset($this->license_id) && $this->license_id > 0){
+            if (array_key_exists($this->license_id, $output))
+                return $output[$this->license_id];
+        }
         return ['error' => "License not found!"];
     }
 }
