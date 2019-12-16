@@ -187,7 +187,8 @@ function directadmin_licensing_CreateAccount(array $params)
                 ]);
             }
         }
-
+        $server->set_license_id($license['lid']);
+        $server->pay_license();
     } catch (Exception $e) {
         // Record the error in WHMCS's module log.
         logModuleCall(
