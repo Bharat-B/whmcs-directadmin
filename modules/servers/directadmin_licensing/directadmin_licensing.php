@@ -88,7 +88,7 @@ function directadmin_licensing_ConfigOptions($params = [])
             $oslist[] = "$id|$name";
         }
         $oslist = implode(",",$oslist);
-        
+
         $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','lid%')->first();
         if(!isset($field->id)){
             Capsule::table('tblcustomfields')->insertGetId([
@@ -106,6 +106,19 @@ function directadmin_licensing_ConfigOptions($params = [])
             Capsule::table('tblcustomfields')->insertGetId([
                 'relid' => $_REQUEST['id'],
                 'fieldname' => "ip|IP Address",
+                'adminonly' => 'off',
+                'showorder' => 'on',
+                'fieldtype' => 'text',
+                'type' => 'product',
+                'required' => 'on'
+            ]);
+        }
+
+        $field = Capsule::table('tblcustomfields')->where('relid',$_REQUEST['id'])->where('fieldname','like','domain%')->first();
+        if(!isset($field->id)){
+            Capsule::table('tblcustomfields')->insertGetId([
+                'relid' => $_REQUEST['id'],
+                'fieldname' => "domain|Domain",
                 'adminonly' => 'off',
                 'showorder' => 'on',
                 'fieldtype' => 'text',
@@ -155,7 +168,7 @@ function directadmin_licensing_CreateAccount(array $params)
 {
     try {
         $server = new LicenseServer($params['serverusername'],$params['serverpassword']);
-        $license = $server->create_license($params['customfields']['ip'],$params['configoption2'],$params['domain'],$params["clientsdetails"]["email"],$params['customfields']['os'], $params['domain']);
+        $license = $server->create_license($params['customfields']['ip'],$params['configoption2'],$params['customfields']['domain'],$params["clientsdetails"]["email"],$params['customfields']['os'], $params['customfields']['domain']);
         if($license['error']){
             throw new \Exception($license['error']);
         }
